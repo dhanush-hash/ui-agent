@@ -14,6 +14,7 @@
   --color-deep-blue-darkest: #002666;
   --color-deep-blue-dark: #1165ff;
   --color-deep-blue-mid: #70a3ff;
+  --color-deep-blue-wash: #e8f3ff;
 
   /* Text / grey */
   --color-text-grey-high: #404040;
@@ -36,6 +37,15 @@
 
   /* States */
   --color-warning: #f7d54d;
+
+  /* Accents — asset-type tags */
+  --color-accent-tangerine: #f58c42;
+  --color-accent-tangerine-wash: #fef6ee;
+  --color-accent-lavender: #9988fd;
+  --color-accent-lavender-wash: #f4f3ff;
+
+  /* Brand link / interactive text */
+  --color-link: #1165ff;
 
   /* Radii */
   --radius-control: 4px;

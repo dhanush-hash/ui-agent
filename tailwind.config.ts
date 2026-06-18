@@ -14,6 +14,7 @@ const config: Config = {
           darkest: 'var(--color-deep-blue-darkest)',
           dark: 'var(--color-deep-blue-dark)',
           mid: 'var(--color-deep-blue-mid)',
+          wash: 'var(--color-deep-blue-wash)',
         },
         'text-grey': {
           high: 'var(--color-text-grey-high)',
@@ -35,6 +36,13 @@ const config: Config = {
         'tab-divider': 'var(--color-tab-divider)',
         connector: 'var(--color-connector)',
         warning: 'var(--color-warning)',
+        link: 'var(--color-link)',
+        accent: {
+          tangerine: 'var(--color-accent-tangerine)',
+          'tangerine-wash': 'var(--color-accent-tangerine-wash)',
+          lavender: 'var(--color-accent-lavender)',
+          'lavender-wash': 'var(--color-accent-lavender-wash)',
+        },
       },
       fontFamily: {
         title: ['Sora', 'ui-sans-serif', 'system-ui', 'sans-serif'],
@@ -48,6 +56,8 @@ const config: Config = {
       },
       spacing: {
         header: '60px',
+        topbar: '84px',
+        sidenav: '72px',
         control: '40px',
         'icon-control': '38px',
       },

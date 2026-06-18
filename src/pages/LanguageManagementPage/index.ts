@@ -1,0 +1,1 @@
+export { LanguageManagementPage } from './LanguageManagementPage';

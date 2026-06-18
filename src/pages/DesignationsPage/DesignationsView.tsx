@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/utils';
 import { Button } from '@/components/ui/Button';
+import { IconButton } from '@/components/ui/IconButton';
 import { Spinner } from '@/components/ui/Spinner';
 import { PageHeader } from '@/components/composed/PageHeader';
 import { TabBar } from '@/components/composed/TabBar';
 import { DesignationTree } from '@/components/composed/DesignationTree';
 import { CanvasToolbar } from '@/components/composed/CanvasToolbar';
-import { LightbulbIcon } from '@/assets/icons';
+import { LightbulbIcon, MoreVerticalIcon, PlusIcon } from '@/assets/icons';
 import { DESIGNATIONS_TAB_ID } from './tabs';
 import type { DesignationsViewProps } from './DesignationsView.types';
 
@@ -88,7 +89,29 @@ export function DesignationsView({
 
   return (
     <div className="flex h-full flex-col bg-surface-lowest">
-      <PageHeader title="Designations" onAddDesignation={onAddDesignation} onMore={onMore} />
+      <PageHeader
+        title="Designations"
+        showHelp
+        actions={
+          <>
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<PlusIcon size={16} />}
+              onClick={onAddDesignation}
+            >
+              Add Designation
+            </Button>
+            <IconButton
+              variant="outline"
+              size="sm"
+              aria-label="More options"
+              icon={<MoreVerticalIcon size={24} />}
+              onClick={onMore}
+            />
+          </>
+        }
+      />
 
       <TabBar
         tabs={tabs}

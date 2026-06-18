@@ -17,8 +17,11 @@ export interface LanguageAsset {
   description: string;
   /** Number of locations the asset is assigned to (`locations_count`). */
   locationsCount: number;
-  /** Whether the asset is a single key or a grouped (multiple-key) asset. */
-  type: AssetType;
+  /**
+   * Whether the asset is a single key or a grouped (multiple-key) asset.
+   * `null` when the asset has no assigned locations to derive a type from.
+   */
+  type: AssetType | null;
   /** Representative translated value shown in the active-language column. */
   translatedValue: string;
   /** Display name of the user who created the asset. */

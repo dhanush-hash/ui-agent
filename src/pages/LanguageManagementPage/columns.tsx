@@ -45,6 +45,7 @@ export function buildAssetColumns({
       header: 'Asset type',
       widthClassName: 'w-32',
       renderCell: (asset) => {
+        if (!asset.type) return <span className="text-text-grey-medium">—</span>;
         const meta = ASSET_TYPE_META[asset.type];
         return <Tag tone={meta.tone}>{meta.label}</Tag>;
       },

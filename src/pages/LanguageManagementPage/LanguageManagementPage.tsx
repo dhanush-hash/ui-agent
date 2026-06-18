@@ -1,26 +1,21 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { LanguageAsset } from '@/types';
-import { DEFAULT_LANGUAGE, LANGUAGES, useLanguageAssets } from '@/hooks';
+import { useAssets } from '@/hooks';
+import { DEFAULT_LANGUAGE, LANGUAGES } from '@/constants/languages';
 import { LanguageManagementView } from './LanguageManagementView';
 
 const PAGE_SIZE_OPTIONS = [8, 16, 24, 50];
 
 type SortDirection = 'asc' | 'desc';
 
-function matchesQuery(asset: LanguageAsset, query: string): boolean {
-  const haystack = `${asset.name} ${asset.description} ${asset.translatedValue} ${asset.createdBy}`.toLowerCase();
-  return haystack.includes(query);
-}
-
 /**
- * Container for the Language Management index. Owns server state (TanStack Query),
- * the language filter, search, sort, and pagination; derives the visible page of
- * rows and delegates all rendering to `LanguageManagementView`.
+ * Container for the Language Management index. Owns the language filter, search,
+ * sort, and pagination, and drives `GET /assets` (server-side search/sort/paging)
+ * via `useAssets`. All rendering is delegated to `LanguageManagementView`.
  */
 export function LanguageManagementPage() {
   const navigate = useNavigate();
-  const { data, isLoading, isError, refetch } = useLanguageAssets();
 
   const [activeLanguageCode, setActiveLanguageCode] = useState(DEFAULT_LANGUAGE.code);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
@@ -32,20 +27,16 @@ export function LanguageManagementPage() {
   const activeLanguage =
     LANGUAGES.find((language) => language.code === activeLanguageCode) ?? DEFAULT_LANGUAGE;
 
-  const filtered = useMemo(() => {
-    const assets = data ?? [];
-    const query = searchQuery.trim().toLowerCase();
-    const matched = query ? assets.filter((asset) => matchesQuery(asset, query)) : assets;
-    const direction = sortDirection === 'asc' ? 1 : -1;
-    return [...matched].sort((a, b) => a.name.localeCompare(b.name) * direction);
-  }, [data, searchQuery, sortDirection]);
+  const { data, isLoading, isError, refetch } = useAssets({
+    search: searchQuery,
+    page,
+    size: pageSize,
+    sortDirection,
+    languageCode: activeLanguage.code,
+  });
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const currentPage = Math.min(page, pageCount);
-  const pageRows = useMemo(
-    () => filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize),
-    [filtered, currentPage, pageSize],
-  );
+  const rows = data?.assets ?? [];
+  const pageCount = Math.max(1, data?.totalPages ?? 1);
 
   const handleSelectLanguage = useCallback((code: string) => {
     setActiveLanguageCode(code);
@@ -92,12 +83,12 @@ export function LanguageManagementPage() {
       searchQuery={searchQuery}
       onSearchChange={handleSearchChange}
       onSort={handleSort}
-      rows={pageRows}
+      rows={rows}
       isLoading={isLoading}
       isError={isError}
       onRetry={() => void refetch()}
       onRowAction={handleRowAction}
-      page={currentPage}
+      page={page}
       pageCount={pageCount}
       pageSize={pageSize}
       pageSizeOptions={PAGE_SIZE_OPTIONS}

@@ -33,18 +33,65 @@ function buildUrl(path: string, params?: QueryParams): string {
   return url.toString();
 }
 
+/**
+ * Required request context, derived from the OpenAPI spec: every Assets endpoint
+ * declares these three headers as `required: true`. Each maps to the env var that
+ * supplies its value. The spec defines no `securitySchemes`/bearer token, so the
+ * Authorization header is treated as optional and forwarded only when present.
+ */
+const REQUIRED_HEADERS: ReadonlyArray<{
+  header: string;
+  envVar: string;
+  read: () => string | undefined;
+}> = [
+  { header: 'X-Tenant-Id', envVar: 'VITE_API_TENANT_ID', read: () => import.meta.env.VITE_API_TENANT_ID },
+  { header: 'X-User-Id', envVar: 'VITE_API_USER_ID', read: () => import.meta.env.VITE_API_USER_ID },
+  { header: 'X-User-Roles', envVar: 'VITE_API_USER_ROLES', read: () => import.meta.env.VITE_API_USER_ROLES },
+];
+
+export interface MissingApiConfig {
+  /** The HTTP header the API expects. */
+  header: string;
+  /** The env var that supplies it. */
+  envVar: string;
+}
+
+/** Thrown before a request when required API configuration is absent. */
+export class ApiConfigError extends Error {
+  readonly missing: MissingApiConfig[];
+  constructor(missing: MissingApiConfig[]) {
+    super(
+      `Missing required API configuration: ${missing
+        .map((m) => `${m.envVar} (${m.header})`)
+        .join(', ')}. Set these in .env.local and restart the dev server.`,
+    );
+    this.name = 'ApiConfigError';
+    this.missing = missing;
+  }
+}
+
+/**
+ * Detects which spec-required headers have no configured value. Returns an empty
+ * array when the client is fully configured — callers can use this for onboarding
+ * UI or a preflight check.
+ */
+export function getMissingApiConfig(): MissingApiConfig[] {
+  return REQUIRED_HEADERS.filter(({ read }) => !read()?.trim()).map(({ header, envVar }) => ({
+    header,
+    envVar,
+  }));
+}
+
 function buildHeaders(): Headers {
   const headers = new Headers({ 'Content-Type': 'application/json' });
 
-  const tenantId = import.meta.env.VITE_API_TENANT_ID;
-  const userId = import.meta.env.VITE_API_USER_ID;
-  const userRoles = import.meta.env.VITE_API_USER_ROLES;
+  for (const { header, read } of REQUIRED_HEADERS) {
+    const value = read()?.trim();
+    if (value) headers.set(header, value);
+  }
 
-  // Required by the spec for every /assets request (multi-tenancy + authorization).
-  if (tenantId) headers.set('X-Tenant-Id', tenantId);
-  if (userId) headers.set('X-User-Id', userId);
-  if (userRoles) headers.set('X-User-Roles', userRoles);
-
+  // No bearer scheme in the spec, but forward a token when one is present so the
+  // client keeps working if the API adds auth later.
   if (typeof localStorage !== 'undefined') {
     const token = localStorage.getItem('auth_token');
     if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -71,6 +118,13 @@ export interface ApiGetOptions {
 
 /** Performs a typed GET request against the configured API base URL. */
 export async function apiGet<T>(path: string, options?: ApiGetOptions): Promise<T> {
+  // Detect missing required context up front so the failure is actionable
+  // ("set VITE_API_TENANT_ID…") instead of an opaque server rejection.
+  const missing = getMissingApiConfig();
+  if (missing.length > 0) {
+    throw new ApiConfigError(missing);
+  }
+
   const response = await fetch(buildUrl(path, options?.params), {
     method: 'GET',
     headers: buildHeaders(),

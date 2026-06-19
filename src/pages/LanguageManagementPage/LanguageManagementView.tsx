@@ -25,6 +25,7 @@ export function LanguageManagementView({
   rows,
   isLoading,
   isError,
+  errorMessage,
   onRetry,
   onRowAction,
   page,
@@ -140,6 +141,7 @@ export function LanguageManagementView({
             keyExtractor={(asset) => asset.id}
             isLoading={isLoading}
             isError={isError}
+            errorMessage={errorMessage}
             onRetry={onRetry}
             emptyState={
               <p className="font-sans text-body text-text-grey-medium-high">

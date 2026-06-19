@@ -25,6 +25,8 @@ export interface DataTableProps<T> {
   /** Async states owned by the caller. */
   isLoading?: boolean;
   isError?: boolean;
+  /** Error detail shown in the error state. Falls back to a generic message. */
+  errorMessage?: string | null;
   onRetry?: () => void;
   /** Rendered when there are no rows and no loading/error state. */
   emptyState?: ReactNode;

@@ -27,7 +27,7 @@ export function LanguageManagementPage() {
   const activeLanguage =
     LANGUAGES.find((language) => language.code === activeLanguageCode) ?? DEFAULT_LANGUAGE;
 
-  const { data, isLoading, isError, refetch } = useAssets({
+  const { data, isLoading, isError, error, refetch } = useAssets({
     search: searchQuery,
     page,
     size: pageSize,
@@ -86,6 +86,7 @@ export function LanguageManagementPage() {
       rows={rows}
       isLoading={isLoading}
       isError={isError}
+      errorMessage={error?.message ?? null}
       onRetry={() => void refetch()}
       onRowAction={handleRowAction}
       page={page}

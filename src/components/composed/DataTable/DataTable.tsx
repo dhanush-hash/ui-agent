@@ -25,6 +25,7 @@ export function DataTable<T>({
   caption,
   isLoading,
   isError,
+  errorMessage,
   onRetry,
   emptyState,
   onRowClick,
@@ -41,7 +42,9 @@ export function DataTable<T>({
     if (isError) {
       return (
         <StateRow columns={columns}>
-          <p className="font-sans text-body text-text-grey-medium-high">Something went wrong while loading.</p>
+          <p className="font-sans text-body text-text-grey-medium-high">
+            {errorMessage ?? 'Something went wrong while loading.'}
+          </p>
           {onRetry && (
             <Button variant="secondary" size="sm" onClick={onRetry}>
               Try again

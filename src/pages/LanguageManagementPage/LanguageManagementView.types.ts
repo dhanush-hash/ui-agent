@@ -22,6 +22,8 @@ export interface LanguageManagementViewProps {
   rows: LanguageAsset[];
   isLoading: boolean;
   isError: boolean;
+  /** Error detail surfaced in the table's error state. */
+  errorMessage?: string | null;
   onRetry: () => void;
   /** Fired when a row's overflow menu is activated. */
   onRowAction: (asset: LanguageAsset) => void;
